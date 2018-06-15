@@ -1,0 +1,29 @@
+{
+  "method": "post",
+  "url": "http://aidemo.kuaishang.cn:8080/asv/identify?xxx=xxx&yyy=yyy",
+  "header": {
+    "user_agent": "xxx",
+    "content_type": "multipart/form-data; boundary=--------------------------52305533154582293324771380",
+    "content_length": 34263465
+  },
+  "body": {
+    "type": "json",
+    "json_body": "{\"aa\":\"bb\"}",
+    "string_body": "123",
+    "form_data_body": {
+      "text": {
+        "abc": "abc",
+        "xyz": "xyz"
+      },
+      "file": {
+        "file1": "local://usr/local/data/1234.wav",
+        "file2": "http://localhost:8080/data/1234.mp3",
+        "file3": "hdfs://192.158.1.16:9000/tmp/asv/1234.ark"
+      }
+    },
+    "form_urlencoded": {
+      "abc": "abc",
+      "xyz": "xyz"
+    }
+  }
+}

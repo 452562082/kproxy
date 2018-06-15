@@ -1,0 +1,60 @@
+{
+  // http 端口
+  "port": 7789,
+  // 最大并发数
+  "max_queue_size": 12,
+  // 达到最大并发数后，获取任务执行体的超时时间
+  "max_wait_time": 600,
+  // log 输出 stat 统计日志间隔周期
+  "stat_duration": 5,
+
+  // kafka 相关配置
+  "kafka": {
+    // kafka 服务节点
+    "kafka_hosts": [
+      "192.168.1.16:9092"
+    ],
+    // kafka 服务前端 zk 服务节点
+    "kafka_zookeeper_hosts": [
+      "192.168.1.16:2181"
+    ],
+    // tproxy 订阅任务所用的 group
+    "kafka_consumer_group": "proxy_kafka_group"
+  },
+
+  // zk 相关配置
+  "zookeeper": {
+    // zk 服务节点
+    "zookeeper_hosts": [
+      "127.0.0.1:2181"
+    ],
+    // zk 服务发现监听节点
+    "zookeeper_service_node": "/navi/kafka"
+  },
+
+  // log 日志相关配置
+  "log": {
+    // 开启日志文件
+    "enable": false,
+    // 日志文件路径
+    "file": "./kproxy.log",
+    // 日志等级
+    // Fatal:0, Error:1, Alert:2, Warn:3,
+    // Notice:4, Info:5, Debug:6, Trace:7
+    "level": 6,
+    // 异步日志
+    "async": false,
+    // 日志等级配色
+    "coloured": true,
+    // 日志显示行号
+    "show_lines": true,
+    // 日志最大行数
+    "maxlines": 5000000,
+    // 日志最大容量
+    "maxsize": 536870912,
+    // 日志隔天回滚
+    "daily": true,
+    // 保存日志最大天数
+    "maxdays": 15
+  }
+}
