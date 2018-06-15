@@ -39,8 +39,12 @@ func main() {
 		return
 	}
 
-	select {
-		case c := <- zkclient.GetChildren():
+	go func() {
+		select {
+		case c := <-zkclient.GetChildren():
 			fmt.Println(c)
-	}
+		}
+	}()
+
+	select{}
 }
