@@ -40,9 +40,11 @@ func main() {
 	}
 
 	go func() {
-		select {
-		case c := <-zkclient.GetChildren():
-			fmt.Println(c)
+		for {
+			select {
+			case c := <-zkclient.GetChildren():
+				fmt.Println(c)
+			}
 		}
 	}()
 
