@@ -67,11 +67,11 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 			return nil, err
 		}
 		req = httpreq.GetRequest()
+	case "string_body":
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 		log.Info(req.Header)
 		data, _ := ioutil.ReadAll(req.Body)
 		log.Info(string(data))
-	case "string_body":
-		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 	case "form_data_body":
 		var b bytes.Buffer
 		w := multipart.NewWriter(&b)
