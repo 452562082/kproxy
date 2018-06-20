@@ -94,7 +94,7 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 			}
 		}
 		w.Close()
-		log.Info(b)
+		log.Info(string(b.Bytes()))
 		req, err := http.NewRequest(msg.Method, msg.Url, &b)
 		if err != nil {
 			return nil, err
