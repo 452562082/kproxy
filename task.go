@@ -26,7 +26,7 @@ type Message struct {
 	RequestId	string	`json:"request_id"`
 	Method		string	`json:"method"`
 	Url			string	`json:"url"`
-	Header 		map[string]string		`json:"-"`
+	Header 		map[string]string		`json:"header"`
 	Body 		Body	`json:"body"`
 }
 
