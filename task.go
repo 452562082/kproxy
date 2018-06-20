@@ -7,6 +7,7 @@ import (
 	"time"
 	"fmt"
 	"kuaishangtong/common/utils/log"
+	"strconv"
 )
 
 type FormDataBody struct {
@@ -68,7 +69,12 @@ func (t *Task) Msg2Req(msg *sarama.ConsumerMessage) (*httplib.HTTPRequest, error
 	}
 
 	for k, v := range msg_json.Header {
-		req.Header(k, v.(string))
+		switch v.(type){
+		case string:
+			req.Header(k, v.(string))
+		case float64:
+			req.Header(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
+		}
 	}
 
 	return req, nil
