@@ -74,5 +74,4 @@ func main() {
 	}
 
 	proxy.Loop()
-	select{}
 }

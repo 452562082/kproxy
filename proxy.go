@@ -25,6 +25,7 @@ func NewProxy(gkConsumer *kafka.KafkaClusterConsumer,
 
 func (p *proxy) Loop() {
 	go p.consumerRecvLoop()
+	select{}
 }
 
 func (p *proxy) consumerRecvLoop() {
