@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"strings"
 	"io/ioutil"
+	"strconv"
 )
 
 type FormDataBody struct {
@@ -69,6 +70,8 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		req = httpreq.GetRequest()
 	case "string_body":
 		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
+		req.Header.Set("Content-Type","text/plain")
+		req.Header.Set("content-length", strconv.Itoa(len(msg.Body.StringBody)))
 		log.Info(req.Header)
 		data, _ := ioutil.ReadAll(req.Body)
 		log.Info(string(data))
@@ -112,16 +115,6 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 	}
 
 	return req, nil
-	//for k, v := range msg.Header {
-	//	switch v.(type){
-	//	case string:
-	//		req.Header.Set(k, v.(string))
-	//	case float64:
-	//		req.Header.Set(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
-	//	case int:
-	//		req.Header.Set(k, strconv.Itoa(v.(int)))
-	//	}
-	//}
 }
 
 func NewTaskQueue(queueSize, maxWaitTime int) (*TaskQueue, error) {
