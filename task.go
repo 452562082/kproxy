@@ -68,7 +68,7 @@ func (t *Task) Msg2Req(msg *sarama.ConsumerMessage) (*httplib.HTTPRequest, error
 	}
 
 	for k, v := range msg_json.Header {
-		req.Header(k, v)
+		req.Header(k, v.(string))
 	}
 
 	return req, nil
