@@ -117,9 +117,6 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 			return nil, err
 		}
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-		log.Info(req.Header)
-		d, _ := ioutil.ReadAll(req.Body)
-		log.Info(string(d))
 	}
 
 	return req, nil
