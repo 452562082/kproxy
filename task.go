@@ -60,7 +60,7 @@ func NewTask(attachQueue *TaskQueue) *Task {
 func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 	var req *http.Request
 	switch msg.Body.Type {
-	case "json":
+	case "json_body":
 		httpreq, err := httplib.NewRequest(msg.Url, msg.Method).JSONBody(msg.Body.JsonBody)
 		if err != nil {
 			return nil, err
@@ -68,7 +68,7 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		req = httpreq.GetRequest()
 		log.Info(req.Header)
 		log.Info(req.Body)
-	case "string":
+	case "string_body":
 		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 	case "form_data_body":
 		var b bytes.Buffer
