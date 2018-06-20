@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"io/ioutil"
 )
 
 type FormDataBody struct {
@@ -67,7 +68,8 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		}
 		req = httpreq.GetRequest()
 		log.Info(req.Header)
-		log.Info(req.Body)
+		data, _ := ioutil.ReadAll(req.Body)
+		log.Info(string(data))
 	case "string_body":
 		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 	case "form_data_body":
