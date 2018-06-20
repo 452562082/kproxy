@@ -164,6 +164,8 @@ func (this *TaskQueue) callService(msg *sarama.ConsumerMessage) {
 		log.Error(err)
 		return
 	}
+	log.Info(req.Header)
+	log.Info(req.Body)
 
 	client := &http.Client{}
 	res, err := client.Do(req)
