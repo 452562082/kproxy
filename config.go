@@ -15,7 +15,7 @@ var defaultConfig Config //程序主配置
 type kafkaConf struct {
 	KafkaHosts				[]string `json:"kafka_hosts"`
 	KafkaZookeeperHosts		[]string `json:"kafka_zookeeper_hosts"`
-	KafkaConsumerTopics 		[]string `json:"kafka_consumer_topic"`
+	KafkaConsumerTopics 		[]string `json:"kafka_consumer_topics"`
 	KafkaConsumerGroup		string `json:"kafka_consumer_group"`
 	KafkaProducerTopic		string `json:"kafka_producer_topic"`
 }
