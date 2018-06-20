@@ -15,7 +15,9 @@ var defaultConfig Config //程序主配置
 type kafkaConf struct {
 	KafkaHosts				[]string `json:"kafka_hosts"`
 	KafkaZookeeperHosts		[]string `json:"kafka_zookeeper_hosts"`
-	KafkaConsumerGroup		[]string `json:"kafka_consumer_group"`
+	KafkaConsumerTopics 		[]string `json:"kafka_consumer_topic"`
+	KafkaConsumerGroup		string `json:"kafka_consumer_group"`
+	KafkaProducerTopic		string `json:"kafka_producer_topic"`
 }
 
 type zookeeperConf struct {
@@ -50,7 +52,7 @@ type Config struct {
 	StatDuration	int `json:"stat_duration"`
 
 	// kafka
-	kafka		kafkaConf `json:"kafka"`
+	Kafka		kafkaConf `json:"kafka"`
 
 	// zk
 	Zookeeper 	zookeeperConf `json:"zookeeper"`

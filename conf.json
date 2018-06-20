@@ -18,8 +18,13 @@
     "kafka_zookeeper_hosts": [
       "192.168.1.16:2181"
     ],
+    "kafka_consumer_topics": [
+      "test"
+    ],
     // tproxy 订阅任务所用的 group
-    "kafka_consumer_group": "proxy_kafka_group"
+    "kafka_consumer_group": "proxy_kafka_group",
+    // tproxy 回复 result 的 topic
+    "kafka_producer_topic": "kafka_kproxy_result"
   },
 
   // zk 相关配置
