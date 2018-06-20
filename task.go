@@ -9,6 +9,12 @@ import (
 	"kuaishangtong/common/utils/log"
 	"kuaishangtong/common/utils"
 	"strconv"
+	"mime/multipart"
+	"bytes"
+	"os"
+	"io"
+	"net/http"
+	"net/url"
 )
 
 type FormDataBody struct {
@@ -51,27 +57,63 @@ func NewTask(attachQueue *TaskQueue) *Task {
 	}
 }
 
-func (t *Task) MsgJson2Req(msg Message) (*httplib.HTTPRequest, error) {
-	var req *httplib.HTTPRequest
-	switch msg.Body.Type {
-	case "json":
-		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.JsonBody)
-	case "string":
-		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody)
-	case "form_data_body":
-		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormDataBody)
-	case "form_urlencoded":
-		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
-	}
-
+func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
+	var req *http.Request
 	for k, v := range msg.Header {
 		switch v.(type){
 		case string:
-			req.Header(k, v.(string))
+			req.Header.Set(k, v.(string))
 		case float64:
-			req.Header(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
+			req.Header.Set(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
 		case int:
-			req.Header(k, strconv.Itoa(v.(int)))
+			req.Header.Set(k, strconv.Itoa(v.(int)))
+		}
+	}
+
+	switch msg.Body.Type {
+	case "json":
+		httpreq, err := httplib.NewRequest(msg.Url, msg.Method).JSONBody(msg.Body.JsonBody)
+		if err != nil {
+			return nil, err
+		}
+		req = httpreq.GetRequest()
+	case "string":
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
+	case "form_data_body":
+		var b bytes.Buffer
+		w := multipart.NewWriter(&b)
+		for k, v := range msg.Body.FormDataBody.Text {
+			err := w.WriteField(k, v.(string))
+			if err != nil {
+				return nil, err
+			}
+		}
+		for k, v := range msg.Body.FormDataBody.File {
+			file, err := os.Open(v.(string))
+			if err != nil {
+				return nil, fmt.Errorf("open file %v error: %v",v.(string), err)
+			}
+			defer file.Close()
+
+			fw, err := w.CreateFormFile(k, v.(string))
+			if err != nil {
+				return nil, err
+			}
+
+			if _, err = io.Copy(fw, file); err != nil {
+				return nil, err
+			}
+		}
+		w.Close()
+		req, err := http.NewRequest(msg.Method, msg.Url, &b)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", w.FormDataContentType())
+	case "form_urlencoded":
+		//req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
+		for k, v := range msg.Body.FormUrlEncoded {
+			req.Form.Add(k, v.(string))
 		}
 	}
 
@@ -124,16 +166,17 @@ func (this *TaskQueue) callService(msg *sarama.ConsumerMessage) {
 		return
 	}
 
-	res, err := req.Response()
+	client := &http.Client{}
+	res, err := client.Do(req)
 	if err != nil {
 		log.Error(err)
 		return
 	}
 	defer res.Body.Close()
-	//if res.StatusCode != 200 {
-	//	log.Errorf("server error, response status code: %d", res.StatusCode)
-	//	return
-	//}
+	if res.StatusCode != 200 {
+		log.Errorf("server error, response status code: %d", res.StatusCode)
+		return
+	}
 
 	respBuf := utils.AcquireByteBuffer()
 	defer utils.ReleaseByteBuffer(respBuf)
@@ -154,7 +197,7 @@ func (this *TaskQueue) replyRes(key, val string) {
 		return
 	}
 
-	log.Info("reply res key: %v, value: %v", key, val)
+	log.Infof("reply res key: %v, value: %v\n", key, val)
 }
 
 func (this *TaskQueue) getTask() (*Task, error) {
