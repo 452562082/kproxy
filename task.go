@@ -14,6 +14,7 @@ import (
 	"os"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type FormDataBody struct {
@@ -84,7 +85,7 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 			}
 			defer file.Close()
 
-			fw, err := w.CreateFormFile(k, v.(string))
+			fw, err := w.CreateFormFile(k, v.(string)[strings.LastIndex(v.(string),"/")+1:])
 			if err != nil {
 				return nil, err
 			}
