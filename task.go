@@ -58,18 +58,18 @@ func NewTask(attachQueue *TaskQueue) *Task {
 }
 
 func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
-	var req *http.Request
 	switch msg.Body.Type {
 	case "json":
 		httpreq, err := httplib.NewRequest(msg.Url, msg.Method).JSONBody(msg.Body.JsonBody)
 		if err != nil {
 			return nil, err
 		}
-		req = httpreq.GetRequest()
+		req := httpreq.GetRequest()
+		return req, nil
 	case "string":
-		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
+		req := httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
+		return req, nil
 	case "form_data_body":
-		log.Info("111111111111111111")
 		var b bytes.Buffer
 		w := multipart.NewWriter(&b)
 		for k, v := range msg.Body.FormDataBody.Text {
@@ -103,9 +103,11 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		return req, nil
 	case "form_urlencoded":
 		//req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
+		var req *http.Request
 		for k, v := range msg.Body.FormUrlEncoded {
 			req.Form.Add(k, v.(string))
 		}
+		return req, nil
 	}
 
 	//for k, v := range msg.Header {
@@ -118,8 +120,6 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 	//		req.Header.Set(k, strconv.Itoa(v.(int)))
 	//	}
 	//}
-
-	return req, nil
 }
 
 func NewTaskQueue(queueSize, maxWaitTime int) (*TaskQueue, error) {
@@ -167,8 +167,6 @@ func (this *TaskQueue) callService(msg *sarama.ConsumerMessage) {
 		log.Error(err)
 		return
 	}
-	log.Info(req.Header)
-	log.Info(req.Body)
 
 	client := &http.Client{}
 	res, err := client.Do(req)
