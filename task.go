@@ -58,17 +58,6 @@ func NewTask(attachQueue *TaskQueue) *Task {
 
 func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 	var req *http.Request
-	for k, v := range msg.Header {
-		switch v.(type){
-		case string:
-			req.Header.Set(k, v.(string))
-		case float64:
-			req.Header.Set(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
-		case int:
-			req.Header.Set(k, strconv.Itoa(v.(int)))
-		}
-	}
-
 	switch msg.Body.Type {
 	case "json":
 		httpreq, err := httplib.NewRequest(msg.Url, msg.Method).JSONBody(msg.Body.JsonBody)
@@ -113,6 +102,17 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		//req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
 		for k, v := range msg.Body.FormUrlEncoded {
 			req.Form.Add(k, v.(string))
+		}
+	}
+
+	for k, v := range msg.Header {
+		switch v.(type){
+		case string:
+			req.Header.Set(k, v.(string))
+		case float64:
+			req.Header.Set(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
+		case int:
+			req.Header.Set(k, strconv.Itoa(v.(int)))
 		}
 	}
 
