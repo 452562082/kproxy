@@ -10,23 +10,23 @@ import (
 )
 
 type FormDataBody struct {
-	Text 	map[string]string	`json:"text"`
-	File 	map[string]string 	`json:"file"`
+	Text 	map[string]interface{}	`json:"text"`
+	File 	map[string]interface{} 	`json:"file"`
 }
 
 type Body struct {
 	Type 		string 	`json:"type"`
 	JsonBody	string 	`json:"json_body"`
 	StringBody	string 	`json:"string_body"`
-	FormDataBody	FormDataBody	`json:"-"`//`json:"form_data_body"`
-	FormUrlEncoded	map[string]string	`json:"form_urlencoded"`
+	FormDataBody	FormDataBody	`json:"form_data_body"`
+	FormUrlEncoded	map[string]interface{}	`json:"form_urlencoded"`
 }
 
 type Message struct {
 	RequestId	string	`json:"request_id"`
 	Method		string	`json:"method"`
 	Url			string	`json:"url"`
-	Header 		map[string]string		`json:"header"`
+	Header 		map[string]interface{}		`json:"header"`
 	Body 		Body	`json:"body"`
 }
 
