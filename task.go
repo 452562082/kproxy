@@ -55,6 +55,7 @@ func (t *Task) Msg2Req(msg *sarama.ConsumerMessage) (*httplib.HTTPRequest, error
 	if err != nil {
 		return nil, err
 	}
+	log.Info(msg_json)
 
 	var req *httplib.HTTPRequest
 	switch msg_json.Body.Type {
@@ -110,13 +111,12 @@ func (this *TaskQueue) AddTask(msg *sarama.ConsumerMessage) {
 	 }
 
 	 if task != nil {
-	 	log.Infof("key:%v, val:%v\n",msg.Key, msg.Value)
 	 	req, err := task.Msg2Req(msg)
 	 	if err != nil {
 		 	log.Error(err)
 		 	return
 	 	}
-	 	log.Info(req)
+	 	//log.Info(req)
 
 	 	_, err = req.Response()
 	 	if err != nil {
