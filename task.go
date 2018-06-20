@@ -130,10 +130,10 @@ func (this *TaskQueue) callService(msg *sarama.ConsumerMessage) {
 		return
 	}
 	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Errorf("server error, response status code: %d", res.StatusCode)
-		return
-	}
+	//if res.StatusCode != 200 {
+	//	log.Errorf("server error, response status code: %d", res.StatusCode)
+	//	return
+	//}
 
 	respBuf := utils.AcquireByteBuffer()
 	defer utils.ReleaseByteBuffer(respBuf)
