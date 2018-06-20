@@ -58,17 +58,16 @@ func NewTask(attachQueue *TaskQueue) *Task {
 }
 
 func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
+	var req *http.Request
 	switch msg.Body.Type {
 	case "json":
 		httpreq, err := httplib.NewRequest(msg.Url, msg.Method).JSONBody(msg.Body.JsonBody)
 		if err != nil {
 			return nil, err
 		}
-		req := httpreq.GetRequest()
-		return req, nil
+		req = httpreq.GetRequest()
 	case "string":
-		req := httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
-		return req, nil
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 	case "form_data_body":
 		var b bytes.Buffer
 		w := multipart.NewWriter(&b)
@@ -103,13 +102,12 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		return req, nil
 	case "form_urlencoded":
 		//req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
-		var req *http.Request
 		for k, v := range msg.Body.FormUrlEncoded {
 			req.Form.Add(k, v.(string))
 		}
-		return req, nil
 	}
 
+	return req, nil
 	//for k, v := range msg.Header {
 	//	switch v.(type){
 	//	case string:
