@@ -14,7 +14,6 @@ import (
 	"os"
 	"io"
 	"net/http"
-	"net/url"
 )
 
 type FormDataBody struct {
