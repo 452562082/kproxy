@@ -17,6 +17,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"strconv"
+	"net/url"
 )
 
 type FormDataBody struct {
@@ -72,9 +73,6 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 		req.Header.Set("Content-Type","text/plain")
 		req.Header.Set("content-length", strconv.Itoa(len(msg.Body.StringBody)))
-		log.Info(req.Header)
-		data, _ := ioutil.ReadAll(req.Body)
-		log.Info(string(data))
 	case "form_data_body":
 		var b bytes.Buffer
 		w := multipart.NewWriter(&b)
@@ -108,10 +106,20 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		req.Header.Set("Content-Type", w.FormDataContentType())
 		return req, nil
 	case "form_urlencoded":
-		//req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
+		var data url.Values
 		for k, v := range msg.Body.FormUrlEncoded {
-			req.Form.Add(k, v.(string))
+			data.Set(k, v.(string))
 		}
+		b := strings.NewReader(data.Encode())
+
+		req, err := http.NewRequest(strings.ToUpper(msg.Method), msg.Url, b)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		log.Info(req.Header)
+		d, _ := ioutil.ReadAll(req.Body)
+		log.Info(string(d))
 	}
 
 	return req, nil
