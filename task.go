@@ -18,7 +18,7 @@ type Body struct {
 	Type 		string 	`json:"type"`
 	JsonBody	string 	`json:"json_body"`
 	StringBody	string 	`json:"string_body"`
-	FormDataBody	FormDataBody	`json:"form_data_body"`
+	//FormDataBody	FormDataBody	`json:"form_data_body"`
 	FormUrlEncoded	map[string]string	`json:"form_urlencoded"`
 }
 
@@ -26,7 +26,7 @@ type Message struct {
 	RequestId	string	`json:"request_id"`
 	Method		string	`json:"method"`
 	Url			string	`json:"url"`
-	Header 		map[string]string		`json:"header"`
+	//Header 		map[string]string		`json:"header"`
 	Body 		Body	`json:"body"`
 }
 
