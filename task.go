@@ -105,16 +105,16 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		}
 	}
 
-	for k, v := range msg.Header {
-		switch v.(type){
-		case string:
-			req.Header.Set(k, v.(string))
-		case float64:
-			req.Header.Set(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
-		case int:
-			req.Header.Set(k, strconv.Itoa(v.(int)))
-		}
-	}
+	//for k, v := range msg.Header {
+	//	switch v.(type){
+	//	case string:
+	//		req.Header.Set(k, v.(string))
+	//	case float64:
+	//		req.Header.Set(k, strconv.FormatFloat(v.(float64),'E', -1 ,64))
+	//	case int:
+	//		req.Header.Set(k, strconv.Itoa(v.(int)))
+	//	}
+	//}
 
 	return req, nil
 }
