@@ -102,11 +102,13 @@ func (this *TaskQueue) AddTask(msg *sarama.ConsumerMessage) {
 	 }
 
 	 if task != nil {
+	 	log.Infof("key:%v, val:%v\n",msg.Key, msg.Value)
 	 	req, err := task.Msg2Req(msg)
 	 	if err != nil {
 		 	log.Error(err)
 		 	return
 	 	}
+	 	log.Info(req)
 
 	 	_, err = req.Response()
 	 	if err != nil {
