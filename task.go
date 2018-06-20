@@ -106,7 +106,7 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 		req.Header.Set("Content-Type", w.FormDataContentType())
 		return req, nil
 	case "form_urlencoded":
-		var data url.Values
+		data := make(url.Values)
 		for k, v := range msg.Body.FormUrlEncoded {
 			data.Set(k, v.(string))
 		}
