@@ -18,7 +18,7 @@ type Body struct {
 	Type 		string 	`json:"type"`
 	JsonBody	string 	`json:"json_body"`
 	StringBody	string 	`json:"string_body"`
-	//FormDataBody	FormDataBody	`json:"form_data_body"`
+	FormDataBody	FormDataBody	`json:"-"`//`json:"form_data_body"`
 	FormUrlEncoded	map[string]string	`json:"form_urlencoded"`
 }
 
