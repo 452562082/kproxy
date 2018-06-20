@@ -66,6 +66,8 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 			return nil, err
 		}
 		req = httpreq.GetRequest()
+		log.Info(req.Header)
+		log.Info(req.Body)
 	case "string":
 		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody).GetRequest()
 	case "form_data_body":
@@ -94,7 +96,6 @@ func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 			}
 		}
 		w.Close()
-		log.Infof("method:%v, url:%v",strings.ToUpper(msg.Method), msg.Url)
 		req, err := http.NewRequest(strings.ToUpper(msg.Method), msg.Url, &b)
 		if err != nil {
 			return nil, err
@@ -187,7 +188,6 @@ func (this *TaskQueue) callService(msg *sarama.ConsumerMessage) {
 		log.Error(err)
 		return
 	}
-	log.Info(string(data))
 	this.replyRes(msg_json.RequestId, string(data))
 }
 
