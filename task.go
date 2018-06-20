@@ -55,7 +55,6 @@ func (t *Task) Msg2Req(msg *sarama.ConsumerMessage) (*httplib.HTTPRequest, error
 	if err != nil {
 		return nil, err
 	}
-	log.Info(msg_json)
 
 	var req *httplib.HTTPRequest
 	switch msg_json.Body.Type {
@@ -107,7 +106,8 @@ func NewTaskQueue(queueSize, maxWaitTime int) (*TaskQueue, error) {
 func (this *TaskQueue) AddTask(msg *sarama.ConsumerMessage) {
 	 task, err := this.getTask()
 	 if err != nil {
-		 return
+	 	log.Error(err)
+		return
 	 }
 
 	 if task != nil {
