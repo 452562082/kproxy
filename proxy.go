@@ -20,6 +20,7 @@ func NewProxy(gkConsumer *kafka.KafkaClusterConsumer,
 		resProducer:	gkProducer,
 		taskQueue: 		taskQueue,
 	}
+	taskQueue.proxy = p
 	return p, nil
 }
 

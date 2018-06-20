@@ -7,6 +7,7 @@ import (
 	"time"
 	"fmt"
 	"kuaishangtong/common/utils/log"
+	"kuaishangtong/common/utils"
 	"strconv"
 )
 
@@ -33,11 +34,12 @@ type Message struct {
 
 type Task struct {
 	attachQueue *TaskQueue
-	msg 	*sarama.ConsumerMessage
+	//msg 	*sarama.ConsumerMessage
 }
 
 const MAX_QUEUE_SIZE = 500
 type TaskQueue struct {
+	proxy		*proxy
 	queueSize	int
 	maxWaitTime	int
 	taskqueue	chan *Task
@@ -49,26 +51,20 @@ func NewTask(attachQueue *TaskQueue) *Task {
 	}
 }
 
-func (t *Task) Msg2Req(msg *sarama.ConsumerMessage) (*httplib.HTTPRequest, error) {
-	var msg_json Message
-	err := json.Unmarshal(msg.Value, &msg_json)
-	if err != nil {
-		return nil, err
-	}
-
+func (t *Task) MsgJson2Req(msg Message) (*httplib.HTTPRequest, error) {
 	var req *httplib.HTTPRequest
-	switch msg_json.Body.Type {
+	switch msg.Body.Type {
 	case "json":
-		req = httplib.NewRequest(msg_json.Url, msg_json.Method).Body(msg_json.Body.JsonBody)
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.JsonBody)
 	case "string":
-		req = httplib.NewRequest(msg_json.Url, msg_json.Method).Body(msg_json.Body.StringBody)
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.StringBody)
 	case "form_data_body":
-		req = httplib.NewRequest(msg_json.Url, msg_json.Method).Body(msg_json.Body.FormDataBody)
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormDataBody)
 	case "form_urlencoded":
-		req = httplib.NewRequest(msg_json.Url, msg_json.Method).Body(msg_json.Body.FormUrlEncoded)
+		req = httplib.NewRequest(msg.Url, msg.Method).Body(msg.Body.FormUrlEncoded)
 	}
 
-	for k, v := range msg_json.Header {
+	for k, v := range msg.Header {
 		switch v.(type){
 		case string:
 			req.Header(k, v.(string))
@@ -104,35 +100,61 @@ func NewTaskQueue(queueSize, maxWaitTime int) (*TaskQueue, error) {
 }
 
 func (this *TaskQueue) AddTask(msg *sarama.ConsumerMessage) {
-	 go this.test()
-
-	 //if task != nil {
-	 //
-	 //}
-	 //return
+	 go this.callService(msg)
 }
 
-func (this *TaskQueue) test() {
-	_, err := this.getTask()
+func (this *TaskQueue) callService(msg *sarama.ConsumerMessage) {
+	var msg_json Message
+	err := json.Unmarshal(msg.Value, &msg_json)
 	if err != nil {
 		log.Error(err)
 		return
 	}
-	log.Info("get one")
+
+	task, err := this.getTask()
+	if err != nil {
+		this.replyRes(msg_json.RequestId, "500")
+		return
+	}
+	defer this.putTask(task)
+
+	req, err := task.MsgJson2Req(msg_json)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	res, err := req.Response()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Errorf("server error, response status code: %d", res.StatusCode)
+		return
+	}
+
+	respBuf := utils.AcquireByteBuffer()
+	defer utils.ReleaseByteBuffer(respBuf)
+
+	data, err := utils.ReadAllToByteBuffer(res.Body, respBuf)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	log.Info(string(data))
+	this.replyRes(msg_json.RequestId, string(data))
 }
 
-func (this *TaskQueue) callService(msg *sarama.ConsumerMessage, task *Task) {
-	req, err := task.Msg2Req(msg)
+func (this *TaskQueue) replyRes(key, val string) {
+	err := this.proxy.resProducer.SendStringMessage(key, val)
 	if err != nil {
 		log.Error(err)
 		return
 	}
 
-	_, err = req.Response()
-	if err != nil {
-		log.Error(err)
-		return
-	}
+	log.Info("reply res key: %v, value: %v", key, val)
 }
 
 func (this *TaskQueue) getTask() (*Task, error) {
