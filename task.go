@@ -104,28 +104,35 @@ func NewTaskQueue(queueSize, maxWaitTime int) (*TaskQueue, error) {
 }
 
 func (this *TaskQueue) AddTask(msg *sarama.ConsumerMessage) {
-	 task, err := this.getTask()
-	 if err != nil {
-	 	log.Error(err)
+	 go this.test()
+
+	 //if task != nil {
+	 //
+	 //}
+	 //return
+}
+
+func (this *TaskQueue) test() {
+	_, err := this.getTask()
+	if err != nil {
+		log.Error(err)
 		return
-	 }
+	}
+	log.Info("get one")
+}
 
-	 if task != nil {
-	 	req, err := task.Msg2Req(msg)
-	 	if err != nil {
-		 	log.Error(err)
-		 	return
-	 	}
-	 	//log.Info(req)
+func (this *TaskQueue) callService(msg *sarama.ConsumerMessage, task *Task) {
+	req, err := task.Msg2Req(msg)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 
-	 	_, err = req.Response()
-	 	if err != nil {
-	 		log.Error(err)
-	 		return
-		}
-		//log.Infof(res.Body.Read())
-	 }
-	 return
+	_, err = req.Response()
+	if err != nil {
+		log.Error(err)
+		return
+	}
 }
 
 func (this *TaskQueue) getTask() (*Task, error) {
