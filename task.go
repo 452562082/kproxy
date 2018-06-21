@@ -62,6 +62,11 @@ func NewTask(attachQueue *TaskQueue) *Task {
 
 func (t *Task) MsgJson2Req(msg Message) (*http.Request, error) {
 	var req *http.Request
+	if strings.ToUpper(msg.Method) == "GET" {
+		req = httplib.NewRequest(msg.Url, msg.Method).GetRequest()
+		return req, nil
+	}
+
 	switch msg.Body.Type {
 	case "json_body":
 		httpreq, err := httplib.NewRequest(msg.Url, msg.Method).JSONBody(msg.Body.JsonBody)
